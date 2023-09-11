@@ -52,7 +52,9 @@
         "sortablejs": "^1.15.0",
         "unidecode": "^0.1.8",
         "webpack": "^5.88.2",
-        "zipson": "^0.2.12"
+        "zipson": "^0.2.12",
+        "@react-buddy/ide-toolbox": "^2.4.0",
+        "@react-buddy/palette-mui": "^5.0.1"
     },
     "meteor": {
         "mainModule": {
