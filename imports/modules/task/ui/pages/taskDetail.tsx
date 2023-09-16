@@ -12,12 +12,14 @@ import UploadFilesCollection from '../../../../ui/components/SimpleFormFields/Up
 import ChipInput from '../../../../ui/components/SimpleFormFields/ChipInput/ChipInput';
 import SliderField from '/imports/ui/components/SimpleFormFields/SliderField/SliderField';
 import AudioRecorder from '/imports/ui/components/SimpleFormFields/AudioRecorderField/AudioRecorder';
+import CheckBoxField from '/imports/ui/components/SimpleFormFields/CheckBoxField/CheckBoxField';
+import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
 import ImageCompactField from '/imports/ui/components/SimpleFormFields/ImageCompactField/ImageCompactField';
 import { PageLayout } from '/imports/ui/layouts/PageLayout';
 
 import Print from '@mui/icons-material/Print';
 import Close from '@mui/icons-material/Close';
-//import {PageLayout} from '../../../../../imports/ui/layouts/PageLayout';
+
 import { ITask } from '../../api/taskSch';
 import { IDefaultContainerProps, IDefaultDetailProps, IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
 import { useTheme } from '@mui/material/styles';
@@ -38,7 +40,7 @@ const TaskDetail = (props: ITaskDetail) => {
 	};
 
 	console.log('Schema: ', taskApi.getSchema());
-	console.log('Doc: ', taskDoc);
+	console.log('Doc vindo da publication: ', taskDoc);
 
 	return (
 		<PageLayout
@@ -81,53 +83,25 @@ const TaskDetail = (props: ITaskDetail) => {
 				doc={taskDoc}
 				onSubmit={handleSubmit}
 				loading={loading}>
-				<ImageCompactField key={'ExempleDetail-ImageCompactFieldKEY'} label={'Imagem Zoom+Slider'} name={'image'} />
-
 				<FormGroup key={'fieldsOne'}>
 					<TextField key={'f1-tituloKEY'} placeholder="Titulo" name="title" />
 					<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
 				</FormGroup>
-				<FormGroup key={'fieldsTwo'}>
-					<SelectField key={'f2-tipoKEY'} placeholder="Selecione um tipo" name="type" />
-					<SelectField key={'f2-multiTipoKEY'} placeholder="Selecione alguns tipos" name="typeMulti" />
-				</FormGroup>
-				<FormGroup key={'fieldsThree'} {...{ formType: 'subform', name: 'contacts' }}>
-					<TextMaskField key={'f3-TelefoneKEY'} placeholder="Telefone" name="phone" />
-					<TextMaskField key={'f3-CPFKEY'} placeholder="CPF" name="cpf" />
-				</FormGroup>
-				<FormGroup key={'fieldsFour'} {...{ formType: 'subformArray', name: 'tasks' }}>
-					<TextField key={'f4-nomeTarefaKEY'} placeholder="Nome da Tarefa" name="name" />
-					<TextField key={'f4-descricaoTarefaKEY'} placeholder="Descrição da Tarefa" name="description" />
-				</FormGroup>
-
-				<SliderField key={'ExempleDetail-SliderFieldKEY'} placeholder="Slider" name="slider" />
 
 				<RadioButtonField
 					key={'ExempleDetail-RadioKEY'}
 					placeholder="Opções da Tarefa"
 					name="statusRadio"
+					value={'Todo' + ''}
 					options={[
-						{ value: 'valA', label: 'Valor A' },
-						{ value: 'valB', label: 'Valor B' },
-						{ value: 'valC', label: 'Valor C' }
+						{ value: 'Todo', label: 'Fazendo..' },
+						{ value: 'Doing', label: 'Valor B' },
+						{ value: 'Done', label: 'Valor C' }
 					]}
 				/>
 
-				<FormGroup key={'fieldsFifth'}>
-					<AudioRecorder key={'f5-audioKEY'} placeholder="Áudio" name="audio" />
-				</FormGroup>
-				{/*
-				<UploadFilesCollection
-					key={'ExempleDetail-UploadsFilesKEY'}
-					name="files"
-					label={'Arquivos'}
-					doc={{ _id: taskDoc?._id }}
-				 accept={'image/jpeg, image/png, image/jpg, image/svg, image/bmp, image/gif'}
-					activeClassName={'upload'}/>
-					*/}
-				<FormGroup key={'fieldsSixth'} {...{ name: 'chips' }}>
-					<ChipInput key={'f6-cipsKEY'} name="chip" placeholder="Chip" />
-				</FormGroup>
+				<ToggleField key={'toggleStatus'} name="statusToggle" label="Tarefa privada?" />
+
 				<div
 					key={'Buttons'}
 					style={{
@@ -177,7 +151,9 @@ interface ITaskDetailContainer extends IDefaultContainerProps {}
 export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => {
 	const { screenState, id, navigate, showNotification } = props;
 
+	//usa a publication
 	const subHandle = !!id ? taskApi.subscribe('taskDetail', { _id: id }) : null;
+	//retira o documento
 	let taskDoc = id && subHandle?.ready() ? taskApi.findOne({ _id: id }) : {};
 
 	return {

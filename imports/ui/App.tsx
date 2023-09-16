@@ -32,7 +32,7 @@ export const App = () => {
 	const isMobile = useMediaQuery('(max-width:600px)');
 
 	const themeOptions = {
-		darkMode: darkThemeMode,
+		darkMode: false,
 		fontScale,
 		isMobile
 	};
