@@ -40,7 +40,9 @@ const signinStyle = {
 	},
 	containerButtonOptions: {
 		display: 'flex',
-		flexDirection: 'row',
+		flexDirection: 'column',
+		marginTop: '2rem',
+		marginBottom: '2rem',
 		justifyContent: 'space-between'
 	},
 	containerSocialLoginButton: {

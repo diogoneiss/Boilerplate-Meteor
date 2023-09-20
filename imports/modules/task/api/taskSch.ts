@@ -13,25 +13,18 @@ export const taskSch = {
 		defaultValue: '',
 		optional: true
 	},
-	check: {
-		type: Object,
-		label: 'check box',
-		defaultValue: 'Todo',
-		optional: true,
-		options: ['Todo', 'Doing', 'Done']
-	},
-	statusToggle: {
+
+	isPrivate: {
 		type: Boolean,
 		label: 'Tarefa privada?',
 		defaultValue: false,
 		optional: true
 	},
-	statusRadio: {
-		type: String,
-		label: 'Status RadioButton',
-		defaultValue: 'Todo',
-		optional: false,
-		radiosList: ['Todo', 'Doing', 'Done']
+	check: {
+		type: Boolean,
+		label: 'Tarefa concluída',
+		defaultValue: false,
+		optional: true
 	}
 };
 
@@ -39,8 +32,11 @@ export interface ITask extends IDoc {
 	image: string;
 	title: string;
 	description: string;
-	check: Object;
-	statusCheck: object;
-	statusToggle: boolean;
-	statusRadio: string;
+	check: boolean;
+	isPrivate: boolean;
+}
+
+export interface TaskData extends ITask {
+	nomeUsuario: string;
+	editable: boolean;
 }

@@ -5,8 +5,10 @@ import { userprofileApi } from '../../../../userprofile/api/UserProfileApi';
 import { SimpleTable } from '/imports/ui/components/SimpleTable/SimpleTable';
 import _ from 'lodash';
 import Add from '@mui/icons-material/Add';
+import Edit from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
 import Fab from '@mui/material/Fab';
+import Box from '@mui/material/Box';
 import TablePagination from '@mui/material/TablePagination';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { initSearch } from '/imports/libs/searchUtils';
@@ -16,7 +18,7 @@ import { PageLayout } from '/imports/ui/layouts/PageLayout';
 import TextField from '/imports/ui/components/SimpleFormFields/TextField/TextField';
 import SearchDocField from '/imports/ui/components/SimpleFormFields/SearchDocField/SearchDocField';
 import { IDefaultContainerProps, IDefaultListProps, IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
-import { ITask } from '../../api/taskSch';
+import { ITask, TaskData } from '../../api/taskSch';
 import { IConfigList } from '/imports/typings/IFilterProperties';
 import { Recurso } from '../../config/Recursos';
 import { RenderComPermissao } from '/imports/seguranca/ui/components/RenderComPermisao';
@@ -24,6 +26,7 @@ import { isMobile } from '/imports/libs/deviceVerify';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
+import CustomList from '/imports/ui/components/CustomList/CustomList';
 
 interface ITaskList extends IDefaultListProps {
 	remove: (doc: ITask) => void;
@@ -39,6 +42,7 @@ const TaskList = (props: ITaskList) => {
 		tasks,
 		navigate,
 		remove,
+		showDrawer,
 		showDeleteDialog,
 		onSearch,
 		total,
@@ -54,10 +58,18 @@ const TaskList = (props: ITaskList) => {
 		isMobile
 	} = props;
 
-    const idTask = nanoid();
+	const idTask = nanoid();
 
 	const onClick = (_event: React.SyntheticEvent, id: string) => {
 		navigate('/task/view/' + id);
+	};
+	const viewTask = (_event: React.SyntheticEvent, id: string) => {
+		console.log('vendo tarefa com modal');
+		showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${id}` });
+	};
+	const onClickEdit = (doc: ITask) => {
+		console.log('Indo para edição de tarefa ', doc);
+		navigate('/task/edit/' + doc._id);
 	};
 
 	const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number) => {
@@ -97,98 +109,68 @@ const TaskList = (props: ITaskList) => {
 	};
 
 	const callRemove = (doc: ITask) => {
-		const title = 'Remover exemplo';
-		const message = `Deseja remover o exemplo "${doc.title}"?`;
+		const title = 'Remover tarefa';
+		const message = `Deseja mesmo remover a tarefa "${doc.title}"?`;
 		showDeleteDialog && showDeleteDialog(title, message, doc, remove);
 	};
 
 	const handleSearchDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		!!e.target.value ? setFilter({ createdby: e.target.value }) : clearFilter();
+		!!e.target.value ? setFilter({ title: e.target.value }) : clearFilter();
 	};
 
+	console.log('tarefas: ');
+	console.log(tasks);
 	// @ts-ignore
 	// @ts-ignore
 	return (
-		<PageLayout title={'Lista de Exemplos'} actions={[]}>
+		<PageLayout title={'Lista de tarefas'} actions={[]}>
+			{/*
 			<SearchDocField
-				api={userprofileApi}
-				subscribe={'getListOfusers'}
-				getOptionLabel={(doc) => doc.username || 'error'}
+				api={taskApi}
+				subscribe={'taskList'}
+				getOptionLabel={(doc) => doc.title || 'error'}
 				sort={{ username: 1 }}
 				textToQueryFilter={(textoPesquisa) => {
 					textoPesquisa = textoPesquisa.replace(/[+[\\?()*]/g, '\\$&');
-					return { username: new RegExp(textoPesquisa, 'i') };
+					return { title: new RegExp(textoPesquisa, 'i') };
 				}}
 				autocompleteOptions={{ noOptionsText: 'Não encontrado' }}
-				name={'userId'}
+				name={'title'}
 				label={'Pesquisar com SearchDocField'}
 				onChange={handleSearchDocChange}
 				placeholder={'Todos'}
-				showAll={false}
+				showAll={true}
 				key={'SearchDocKey'}
 			/>
-
-			{!isMobile && (
-				<ToggleField
-					label={'Habilitar ComplexTable'}
-					value={viewComplexTable}
-					onChange={(evt: { target: { value: boolean } }) => {
-						console.log('evt', evt, evt.target);
-						setViewComplexTable(evt.target.value);
-					}}
-				/>
-			)}
-			{(!viewComplexTable || isMobile) && (
-				<>
-					<TextField
-						name={'pesquisar'}
-						label={'Pesquisar'}
-						value={text}
-						onChange={change}
-						onKeyPress={keyPress}
-						placeholder="Digite aqui o que deseja pesquisa..."
-						action={{ icon: 'search', onClick: click }}
-					/>
-
-					<SimpleTable
-						schema={_.pick(
-							{
-								...taskApi.schema,
-								nomeUsuario: { type: String, label: 'Criado por' }
-							},
-							['image', 'title', 'description', 'nomeUsuario']
-						)}
-						data={tasks}
-						onClick={onClick}
-						actions={[{ icon: <Delete />, id: 'delete', onClick: callRemove }]}
-					/>
-				</>
-			)}
-
-			{!isMobile && viewComplexTable && (
-				<ComplexTable
-					data={tasks}
-					schema={_.pick(
-						{
-							...taskApi.schema,
-							nomeUsuario: { type: String, label: 'Criado por' }
-						},
-						['image', 'title', 'description', 'nomeUsuario']
-					)}
-					onRowClick={(row) => navigate('/task/view/' + row.id)}
-					searchPlaceholder={'Pesquisar exemplo'}
-					onDelete={callRemove}
-					onEdit={(row) => navigate('/task/edit/' + row._id)}
-					toolbar={{
-						selectColumns: true,
-						exportTable: { csv: true, print: true },
-						searchFilter: true
-					}}
-					onFilterChange={onSearch}
-					loading={loading}
-				/>
-			)}
-
+*/}
+			<TextField
+				name={'pesquisar'}
+				label={'Pesquisar'}
+				value={text}
+				onChange={change}
+				onKeyPress={keyPress}
+				placeholder="Digite aqui o que deseja pesquisa..."
+				action={{ icon: 'search', onClick: click }}
+			/>
+			<CustomList {...props} tasks={tasks as TaskData[]} />
+			{/*
+			<SimpleTable
+				schema={_.pick(
+					{
+						...taskApi.schema,
+						nomeUsuario: { type: String, label: 'Criado por' }
+					},
+					['title', 'check', 'description', 'isPrivate', 'nomeUsuario']
+				)}
+				data={tasks}
+				onClick={viewTask}
+				actions={[
+					{ icon: <Edit />, id: 'edit', onClick: onClickEdit },
+					{ icon: <Delete />, id: 'delete', onClick: callRemove }
+				]}
+			/>
+			/*}
+			{/*Duvida: como fazer apenas o icone de edit aparecer se o usuario for o criador?*/}
 			<div
 				style={{
 					width: '100%',
@@ -218,10 +200,22 @@ const TaskList = (props: ITaskList) => {
 					style={{
 						position: 'fixed',
 						bottom: isMobile ? 80 : 30,
-						right: 30
+						left: '50%',
+						transform: 'translateX(-50%)',
+						borderRadius: '50%'
 					}}>
-					<Fab id={'add'} onClick={() => navigate(`/task/create/${idTask}`)} color={'primary'}>
+					<Fab
+						id={'add'}
+						onClick={() => navigate(`/task/create/${idTask}`)}
+						color={'primary'}
+						variant="extended"
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center'
+						}}>
 						<Add />
+						<span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Adicionar tarefa</span>
 					</Fab>
 				</div>
 			</RenderComPermissao>
@@ -251,8 +245,7 @@ let onSearchTaskTyping: NodeJS.Timeout;
 const viewComplexTable = new ReactiveVar(false);
 
 export const TaskListContainer = withTracker((props: IDefaultContainerProps) => {
-	const { showNotification } = props;
-
+	const { showNotification, showModal, showDrawer } = props;
 	//Reactive Search/Filter
 	const config = subscribeConfig.get();
 	const sort = {
@@ -277,6 +270,7 @@ export const TaskListContainer = withTracker((props: IDefaultContainerProps) => 
 	return {
 		tasks,
 		loading: !!subHandle && !subHandle.ready(),
+
 		remove: (doc: ITask) => {
 			taskApi.remove(doc, (e: IMeteorError) => {
 				if (!e) {

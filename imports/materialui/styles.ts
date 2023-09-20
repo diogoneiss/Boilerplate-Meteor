@@ -17,10 +17,10 @@
 import React from 'react';
 
 /////////////////////////////////////////////// Paleta de cores do prototipo de alta /////////////////////////////////
-const primary = '#5a9902';
+const primary = '#6f7c80';
 const onPrimary = '#FFFFFF';
 const primaryContainer = '#9DE4D6';
-const onPrimaryContainer = '#034944';
+const onPrimaryContainer = '#FFFFFF';
 const primaryOnHover = 'rgba(0, 126, 122, 0.1)';
 
 const secondary = '#2182C0';

@@ -24,6 +24,7 @@ import { ITask } from '../../api/taskSch';
 import { IDefaultContainerProps, IDefaultDetailProps, IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
 import { useTheme } from '@mui/material/styles';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
+import { getUser } from '/imports/libs/getUser';
 
 interface ITaskDetail extends IDefaultDetailProps {
 	taskDoc: ITask;
@@ -32,6 +33,14 @@ interface ITaskDetail extends IDefaultDetailProps {
 
 const TaskDetail = (props: ITaskDetail) => {
 	const { isPrintView, screenState, loading, taskDoc, save, navigate } = props;
+	const user = getUser();
+	const isCreator = taskDoc?.createdby === user._id;
+	console.log(`Task ${taskDoc?.createdby} and user creator ${user._id}. Created by: ${isCreator}`);
+
+	if (screenState == 'edit' && !isCreator && taskDoc?._id) {
+		console.log('Usuario nao tem permissao de editar, modificando a pagina para view');
+		navigate('/task/view/' + taskDoc._id, { replace: true });
+	}
 
 	const theme = useTheme();
 
@@ -46,36 +55,7 @@ const TaskDetail = (props: ITaskDetail) => {
 		<PageLayout
 			key={'ExemplePageLayoutDetailKEY'}
 			title={screenState === 'view' ? 'Visualizar tarefa' : screenState === 'edit' ? 'Editar tarefa' : 'Criar tarefa'}
-			onBack={() => navigate('/task')}
-			actions={[
-				!isPrintView ? (
-					<span
-						key={'ExempleDetail-spanPrintViewKEY'}
-						style={{
-							cursor: 'pointer',
-							marginRight: 10,
-							color: theme.palette.secondary.main
-						}}
-						onClick={() => {
-							navigate(`/task/printview/${taskDoc._id}`);
-						}}>
-						<Print key={'ExempleDetail-spanPrintKEY'} />
-					</span>
-				) : (
-					<span
-						key={'ExempleDetail-spanNotPrintViewKEY'}
-						style={{
-							cursor: 'pointer',
-							marginRight: 10,
-							color: theme.palette.secondary.main
-						}}
-						onClick={() => {
-							navigate(`/task/view/${taskDoc._id}`);
-						}}>
-						<Close key={'ExempleDetail-spanCloseKEY'} />
-					</span>
-				)
-			]}>
+			onBack={() => navigate('/task')}>
 			<SimpleForm
 				key={'ExempleDetail-SimpleFormKEY'}
 				mode={screenState}
@@ -88,19 +68,16 @@ const TaskDetail = (props: ITaskDetail) => {
 					<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
 				</FormGroup>
 
-				<RadioButtonField
-					key={'ExempleDetail-RadioKEY'}
-					placeholder="Opções da Tarefa"
-					name="statusRadio"
-					value={'Todo' + ''}
-					options={[
-						{ value: 'Todo', label: 'Fazendo..' },
-						{ value: 'Doing', label: 'Valor B' },
-						{ value: 'Done', label: 'Valor C' }
-					]}
-				/>
+				{screenState !== 'create' ? (
+					<CheckBoxField
+						name={'check'}
+						key={'checkboxStatus'}
+						placeholder={'Tarefa concluída'}
+						label={'Tarefa concluída'}
+					/>
+				) : null}
 
-				<ToggleField key={'toggleStatus'} name="statusToggle" label="Tarefa privada?" />
+				<ToggleField key={'isPrivate'} name="isPrivate" label="Tarefa privada?" />
 
 				<div
 					key={'Buttons'}
@@ -115,26 +92,13 @@ const TaskDetail = (props: ITaskDetail) => {
 						<Button
 							key={'b1'}
 							style={{ marginRight: 10 }}
-							onClick={
-								screenState === 'edit' ? () => navigate(`/task/view/${taskDoc._id}`) : () => navigate(`/task/list`)
-							}
+							onClick={() => navigate(`/task/list`)}
 							color={'secondary'}
 							variant="contained">
 							{screenState === 'view' ? 'Voltar' : 'Cancelar'}
 						</Button>
 					) : null}
 
-					{!isPrintView && screenState === 'view' ? (
-						<Button
-							key={'b2'}
-							onClick={() => {
-								navigate(`/task/edit/${taskDoc._id}`);
-							}}
-							color={'primary'}
-							variant="contained">
-							{'Editar'}
-						</Button>
-					) : null}
 					{!isPrintView && screenState !== 'view' ? (
 						<Button key={'b3'} color={'primary'} variant="contained" id="submit">
 							{'Salvar'}
@@ -161,9 +125,18 @@ export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => 
 		taskDoc,
 		save: (doc: ITask, _callback: () => void) => {
 			const selectedAction = screenState === 'create' ? 'insert' : 'update';
+			//Lidando com o valor padrão assim, já que o componente não esta renderizado.
+			console.log('Salvando doc ', JSON.stringify(doc));
+			if (!doc.check) {
+				doc.check = false;
+			}
+			if (!doc.isPrivate) {
+				doc.isPrivate = false;
+			}
 			taskApi[selectedAction](doc, (e: IMeteorError, r: string) => {
 				if (!e) {
-					navigate(`/task/view/${screenState === 'create' ? r : doc._id}`);
+					//navigate(`/task/view/${screenState === 'create' ? r : doc._id}`);
+					navigate('/task');
 					showNotification &&
 						showNotification({
 							type: 'success',

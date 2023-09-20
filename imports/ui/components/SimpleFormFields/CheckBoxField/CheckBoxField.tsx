@@ -13,6 +13,7 @@ import { hasValue } from '/imports/libs/hasValue';
 import SimpleLabelView from '/imports/ui/components/SimpleLabelView/SimpleLabelView';
 import { checkBoxStyle } from './CheckBoxFieldStyle';
 import { read } from 'fs';
+import { IBaseSimpleFormComponent } from '/imports/ui/components/InterfaceBaseSimpleFormComponent';
 
 interface ICheckBoxSimpleFormComponent extends IBaseSimpleFormComponent {
 	/**
@@ -47,6 +48,7 @@ export default ({
 		const newValue = valueTransformer(event?.target?.checked);
 		onChange({ name, target: { name, value: newValue } }, { name, value: newValue });
 	};
+	console.log('label no checkbox: ', label);
 	const list =
 		otherProps.checksList && hasValue(otherProps.checksList)
 			? otherProps.checksList

@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 import SimpleForm from '/imports/ui/components/SimpleForm/SimpleForm';
 
 import { signinStyle } from './SigninStyle';
-import { Box } from '@mui/material';
+import { Box, Typography, Link as MaterialLink } from '@mui/material';
 import { FixedMenuLayoutContext } from '../../layouts/FixedMenuLayout';
 import { IUserProfile } from '/imports/userprofile/api/UserProfileSch';
 
@@ -92,18 +92,6 @@ export const SignIn = (props: ISignIn) => {
 		}
 	};
 
-	const loginFacebook = () => {
-		Meteor.loginWithFacebook({ requestPermissions: ['public_profile', 'email'] }, (err) => {
-			callbackLogin(err);
-		});
-	};
-
-	const loginGoogle = () => {
-		Meteor.loginWithGoogle({ requestPermissions: ['profile', 'email'] }, (err) => {
-			callbackLogin(err);
-		});
-	};
-
 	React.useEffect(() => {
 		if (!!user && !!user._id) navigate('/');
 	}, [user]);
@@ -143,59 +131,35 @@ export const SignIn = (props: ISignIn) => {
 									type="password"
 								/>
 								<Box sx={signinStyle.containerButtonOptions}>
-									<Button id="forgotPassword" color={'secondary'} onClick={() => navigate('/password-recovery')}>
-										Esqueci a minha senha
-									</Button>
 									<Button id="submit" variant={'outlined'} color={'primary'}>
 										Entrar
 									</Button>
 								</Box>
 							</Box>
 						</SimpleForm>
-						<Box style={signinStyle.containerRouterSignUp}>
-							<Button id="newUser" color={'secondary'} onClick={() => navigate('/signup')}>
-								É novo por aqui? Clique aqui para se cadastrar!
-							</Button>
-						</Box>
-						<Box
-							key="loginoptions"
-							style={{
-								paddingRight: 5,
-								width: '102%',
-								margin: 0,
-								padding: 0,
-								display: 'flex',
-								flexDirection: 'column'
-							}}>
-							<Box key="divBtnGoogle" sx={{ width: '100%' }}>
-								<SocialLoginButton
-									key="btnGoogle"
-									iconClass={'google icon'}
-									onLogin={loginGoogle}
-									buttonText={'Login pelo Google'}
-									iconOnly={false}
-									customCss={{
-										background: '#dd4b39',
-										width: '100%',
-										cursor: 'pointer'
-									}}
-								/>
-							</Box>
-							<Box key="divBtnFaceboook" style={{ width: '100%' }}>
-								<SocialLoginButton
-									key="btnFaceboook"
-									iconClass={'facebook icon'}
-									onLogin={loginFacebook}
-									buttonText={'Login pelo Facebook'}
-									iconOnly={false}
-									customCss={{
-										background: '#3B5998',
-										width: '100%',
-										cursor: 'pointer'
-									}}
-								/>
-							</Box>
-						</Box>
+
+						<Typography variant="body1">
+							Esqueceu sua senha?{' '}
+							<MaterialLink
+								component="button"
+								variant="body1"
+								underline="always"
+								color="secondary"
+								onClick={() => navigate('/password-recovery')}>
+								Clique aqui
+							</MaterialLink>
+						</Typography>
+						<Typography variant="body1">
+							É novo por aqui?{' '}
+							<MaterialLink
+								component="button"
+								variant="body1"
+								underline="always"
+								color="secondary"
+								onClick={() => navigate('/signup')}>
+								Cadastre-se!
+							</MaterialLink>
+						</Typography>
 					</Box>
 				</Box>
 			</Container>
