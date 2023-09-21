@@ -108,18 +108,10 @@ const TaskList = (props: ITaskList) => {
 		}
 	};
 
-	const callRemove = (doc: ITask) => {
-		const title = 'Remover tarefa';
-		const message = `Deseja mesmo remover a tarefa "${doc.title}"?`;
-		showDeleteDialog && showDeleteDialog(title, message, doc, remove);
-	};
-
 	const handleSearchDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		!!e.target.value ? setFilter({ title: e.target.value }) : clearFilter();
 	};
 
-	console.log('tarefas: ');
-	console.log(tasks);
 	// @ts-ignore
 	// @ts-ignore
 	return (
@@ -129,7 +121,7 @@ const TaskList = (props: ITaskList) => {
 				api={taskApi}
 				subscribe={'taskList'}
 				getOptionLabel={(doc) => doc.title || 'error'}
-				sort={{ username: 1 }}
+				sort={{ title: 1 }}
 				textToQueryFilter={(textoPesquisa) => {
 					textoPesquisa = textoPesquisa.replace(/[+[\\?()*]/g, '\\$&');
 					return { title: new RegExp(textoPesquisa, 'i') };
@@ -142,7 +134,8 @@ const TaskList = (props: ITaskList) => {
 				showAll={true}
 				key={'SearchDocKey'}
 			/>
-*/}
+			*/}
+
 			<TextField
 				name={'pesquisar'}
 				label={'Pesquisar'}

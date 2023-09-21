@@ -73,7 +73,7 @@ export default function SearchDocField<T extends IDoc>({
 	placeholder,
 	showAll = false,
 	showCompletDoc = false,
-	onDocLoad = () => { },
+	onDocLoad = () => {},
 	style,
 	isSearchId
 }: SearchDocApiProps<T>) {
@@ -94,8 +94,8 @@ export default function SearchDocField<T extends IDoc>({
 			const ready = isTextLengthGreaterThanMin
 				? api.subscribe(subscribe, { $or: [textToQueryFilter(text), { _id: docId }], ...additionalFilter })?.ready()
 				: !!docId
-					? api.subscribe(subscribe, { $or: [{ _id: docId }], ...additionalFilter })?.ready()
-					: true;
+				? api.subscribe(subscribe, { $or: [{ _id: docId }], ...additionalFilter })?.ready()
+				: true;
 
 			const sortCondition = sort || {};
 
@@ -103,10 +103,13 @@ export default function SearchDocField<T extends IDoc>({
 				ready && isTextLengthGreaterThanMin ? api.find({}, { sort: sortCondition }).fetch() : [];
 
 			const options = optionsSemValidar.filter((word) => {
-				return (isSearchId ?
-					unidecode(word.codigo).toLowerCase().includes(unidecode(text).toLowerCase())
-					: unidecode(word.nome).toLowerCase().includes(unidecode(text).toLowerCase())
-				)
+				return isSearchId
+					? unidecode(word?.codigo ?? '')
+							?.toLowerCase()
+							?.includes(unidecode(text ?? '')?.toLowerCase())
+					: unidecode(word?.nome ?? '')
+							?.toLowerCase()
+							?.includes(unidecode(text ?? '')?.toLowerCase());
 			});
 
 			if (sortFront) options.sort(sortFront);
@@ -150,12 +153,12 @@ export default function SearchDocField<T extends IDoc>({
 				style
 					? style
 					: {
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'column',
-						marginTop: '0.5rem',
-						...appStyle.fieldContainer
-					}
+							width: '100%',
+							display: 'flex',
+							flexDirection: 'column',
+							marginTop: '0.5rem',
+							...appStyle.fieldContainer
+					  }
 			}
 			key={name}>
 			{label ? <SimpleLabelView label={label} help={help} disabled={readOnly} /> : null}

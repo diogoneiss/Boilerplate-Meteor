@@ -18,16 +18,23 @@ export const taskSch = {
 		type: Boolean,
 		label: 'Tarefa privada?',
 		defaultValue: false,
-		optional: true
+		optional: false
 	},
 	check: {
 		type: Boolean,
 		label: 'Tarefa concluída',
 		defaultValue: false,
-		optional: true
+		optional: false
+	},
+	createdby: {
+		type: String,
+		label: 'Criado por',
+		optional: true,
+		defaultValue: 'valor padrao'
 	}
 };
 
+// ^só criei o createdat acima pra nao ser droppado no beforeUpdate
 export interface ITask extends IDoc {
 	image: string;
 	title: string;

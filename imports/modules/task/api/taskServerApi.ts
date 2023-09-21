@@ -40,8 +40,42 @@ class TaskServerApi extends ProductServerBase<ITask> {
 			}
 		);
 
+		this.addTransformedPublication(
+			'taskRecent',
+			(filter = {}) => {
+				const currentUser = getUser();
+				//Recuperar apenas tarefas públicas ou do usuario atual
+				const newFilter = {
+					...filter,
+					$or: [{ createdby: currentUser._id }, { isPrivate: false }]
+				};
+				//console.log('Novos filtros: ', newFilter);
+				return this.defaultListCollectionPublication(newFilter, {
+					projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1 },
+					sort: { createdAt: -1 },
+					limit: 4
+				});
+			},
+			(
+				doc: ITask & {
+					nomeUsuario: string;
+				} & {
+					editable: boolean;
+				}
+			) => {
+				const userProfileDoc = userprofileServerApi.getCollectionInstance().findOne({ _id: doc.createdby });
+				return { ...doc, nomeUsuario: userProfileDoc?.username };
+			}
+		);
+
 		this.addPublication('taskDetail', (filter = {}) => {
-			return this.defaultDetailCollectionPublication(filter, {});
+			const currentUser = getUser();
+
+			const newFilter = {
+				...filter,
+				$or: [{ createdby: currentUser._id }, { isPrivate: false }]
+			};
+			return this.defaultDetailCollectionPublication(newFilter, {});
 		});
 
 		this.addRestEndpoint(

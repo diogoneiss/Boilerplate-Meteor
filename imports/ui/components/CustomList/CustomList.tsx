@@ -18,8 +18,8 @@ export function TaskList(props: TaskListProps) {
 		<>
 			<Divider />
 			<List>
-				{tasks.map((task) => (
-					<TaskCell remove={remove} task={task} {...otherProps} />
+				{tasks.map((task, index) => (
+					<TaskCell key={index} remove={remove} task={task} {...otherProps} />
 				))}
 			</List>
 		</>

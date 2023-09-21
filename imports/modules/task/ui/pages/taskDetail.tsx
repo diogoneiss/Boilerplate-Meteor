@@ -29,27 +29,37 @@ import { getUser } from '/imports/libs/getUser';
 interface ITaskDetail extends IDefaultDetailProps {
 	taskDoc: ITask;
 	save: (doc: ITask, _callback?: any) => void;
+	isModalView: boolean;
 }
 
 const TaskDetail = (props: ITaskDetail) => {
-	const { isPrintView, screenState, loading, taskDoc, save, navigate } = props;
+	const { isPrintView, screenState, loading, taskDoc, save, navigate, closeComponent, isModalView } = props;
+
 	const user = getUser();
 	const isCreator = taskDoc?.createdby === user._id;
-	console.log(`Task ${taskDoc?.createdby} and user creator ${user._id}. Created by: ${isCreator}`);
+	//console.log(`Task ${taskDoc?.createdby} and user creator ${user._id}. Created by: ${isCreator}`);
 
 	if (screenState == 'edit' && !isCreator && taskDoc?._id) {
 		console.log('Usuario nao tem permissao de editar, modificando a pagina para view');
-		navigate('/task/view/' + taskDoc._id, { replace: true });
+
+		const newPathname = window.location.pathname.replace('edit', 'view');
+		navigate(newPathname, { replace: true });
 	}
 
 	const theme = useTheme();
 
-	const handleSubmit = (doc: ITask) => {
-		save(doc);
+	const redirectAfterSubmit = () => {
+		console.log(`Fechando componente! é modal? ${isModalView}`);
+		if (isModalView) {
+			closeComponent && closeComponent();
+		} else {
+			navigate('/task');
+		}
 	};
 
-	console.log('Schema: ', taskApi.getSchema());
-	console.log('Doc vindo da publication: ', taskDoc);
+	const handleSubmit = (doc: ITask) => {
+		save(doc, redirectAfterSubmit);
+	};
 
 	return (
 		<PageLayout
@@ -63,6 +73,7 @@ const TaskDetail = (props: ITaskDetail) => {
 				doc={taskDoc}
 				onSubmit={handleSubmit}
 				loading={loading}>
+				{isModalView ? <h1>é modal....</h1> : null}
 				<FormGroup key={'fieldsOne'}>
 					<TextField key={'f1-tituloKEY'} placeholder="Titulo" name="title" />
 					<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
@@ -88,18 +99,16 @@ const TaskDetail = (props: ITaskDetail) => {
 						paddingTop: 20,
 						paddingBottom: 20
 					}}>
-					{!isPrintView ? (
-						<Button
-							key={'b1'}
-							style={{ marginRight: 10 }}
-							onClick={() => navigate(`/task/list`)}
-							color={'secondary'}
-							variant="contained">
-							{screenState === 'view' ? 'Voltar' : 'Cancelar'}
-						</Button>
-					) : null}
+					<Button
+						key={'b1'}
+						style={{ marginRight: 10 }}
+						onClick={() => redirectAfterSubmit()}
+						color={'secondary'}
+						variant="contained">
+						{screenState === 'view' ? 'Voltar' : 'Cancelar'}
+					</Button>
 
-					{!isPrintView && screenState !== 'view' ? (
+					{screenState !== 'view' ? (
 						<Button key={'b3'} color={'primary'} variant="contained" id="submit">
 							{'Salvar'}
 						</Button>
@@ -110,10 +119,12 @@ const TaskDetail = (props: ITaskDetail) => {
 	);
 };
 
-interface ITaskDetailContainer extends IDefaultContainerProps {}
+interface ITaskDetailContainer extends IDefaultContainerProps {
+	isModalView: boolean;
+}
 
 export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => {
-	const { screenState, id, navigate, showNotification } = props;
+	const { screenState, id, navigate, showNotification, isModalView } = props;
 
 	//usa a publication
 	const subHandle = !!id ? taskApi.subscribe('taskDetail', { _id: id }) : null;
@@ -123,6 +134,7 @@ export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => 
 	return {
 		screenState,
 		taskDoc,
+		isModalView,
 		save: (doc: ITask, _callback: () => void) => {
 			const selectedAction = screenState === 'create' ? 'insert' : 'update';
 			//Lidando com o valor padrão assim, já que o componente não esta renderizado.
@@ -136,13 +148,14 @@ export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => 
 			taskApi[selectedAction](doc, (e: IMeteorError, r: string) => {
 				if (!e) {
 					//navigate(`/task/view/${screenState === 'create' ? r : doc._id}`);
-					navigate('/task');
+
 					showNotification &&
 						showNotification({
 							type: 'success',
 							title: 'Operação realizada!',
 							description: `O exemplo foi ${doc._id ? 'atualizado' : 'cadastrado'} com sucesso!`
 						});
+					_callback();
 				} else {
 					console.log('Error:', e);
 					showNotification &&

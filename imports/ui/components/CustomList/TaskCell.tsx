@@ -5,13 +5,14 @@ import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
 import Edit from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import Box from '@mui/material/Box';
 import { ITask, TaskData } from '/imports/modules/task/api/taskSch';
 import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
 import Divider from './Divider';
+
 import { AppContext } from '/imports/ui/AppGeneralComponents';
-import { Simulate } from 'react-dom/test-utils';
-import contextMenu = Simulate.contextMenu;
 
 interface TaskCellProps extends IDefaultContainerProps {
 	task: TaskData;
@@ -21,7 +22,10 @@ interface TaskCellProps extends IDefaultContainerProps {
 function TaskCell(props: TaskCellProps) {
 	const { task, remove, showDeleteDialog, showDrawer, navigate, closeComponent } = props;
 	const context = useContext(AppContext);
-	console.log('Context: ', context);
+	// @ts-ignore
+	let { showModal } = context;
+
+	//console.log('Context: ', context);
 	const editable = task.editable;
 	let criador = task.nomeUsuario;
 
@@ -35,29 +39,41 @@ function TaskCell(props: TaskCellProps) {
 	};
 
 	const viewTask = () => {
-		console.log('vendo tarefa com modal');
-		showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${task._id}` });
-		context?.showNotification('Notification message');
+		console.log(`vendo tarefa com modal, url=/task/view/${task._id}/modalView`);
+
+		showModal && showModal({ title: 'Tarefa', url: `/task/view/${task._id}/modalView`, modalOnClose: true });
+
+		//showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${task._id}` });
+		//context?.showNotification('Notification message');
 		console.log('Closecomponent: ', closeComponent);
 		closeComponent && closeComponent();
+	};
+	//TODO terminar isso pra usar no checkbox
+	const onClickCheckbox = () => {
+		console.log('Clicou no checkbox');
 	};
 
 	const onClickEdit = () => {
 		console.log('Indo para edição de tarefa ', task);
-		navigate('/task/edit/' + task._id);
+		showModal && showModal({ title: 'Tarefa', url: `/task/edit/${task._id}/modalView`, modalOnClose: true });
 	};
 
 	return (
 		<>
 			<ListItem key={task._id} onClick={() => viewTask()} button>
 				<Box display="flex" flex={1} alignItems="center">
-					<Checkbox readOnly={true} checked={task.check} />
+					<Checkbox
+						checkedIcon={<CheckCircleRoundedIcon />}
+						icon={<CircleOutlinedIcon />}
+						readOnly={true}
+						checked={task.check}
+					/>
 					<Box>
 						<ListItemText primary={<Box component="span">{task.title}</Box>} />
 						<ListItemText
 							primary={
 								<Box component="span" sx={{ color: 'grey' }}>
-									{'Criada por ' + criador}
+									{`Criada por ${criador} em ${task.createdat?.toLocaleDateString()}`}
 								</Box>
 							}
 							sx={{ marginTop: '0' }}
