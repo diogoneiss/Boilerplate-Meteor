@@ -18,7 +18,7 @@ export const taskSch = {
 		type: Boolean,
 		label: 'Tarefa privada?',
 		defaultValue: false,
-		optional: false
+		optional: true
 	},
 	check: {
 		type: Boolean,

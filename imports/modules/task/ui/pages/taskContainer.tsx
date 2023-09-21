@@ -12,19 +12,19 @@ export default (props: IDefaultContainerProps) => {
 	let location = useLocation();
 
 	let modalView = location.pathname.endsWith('/modalView');
+	//console.log(`Modal view in container for ${location.pathname}: ${modalView}`);
 
 	const state = screenState ? screenState : props.screenState;
 
 	const id = taskId ? taskId : props.id;
-	const mostrarModal = hasValue(modalView);
 
 	if (!!state && validState.indexOf(state) !== -1) {
 		if (state === 'view' && !!id) {
-			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={mostrarModal} />;
+			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={modalView} />;
 		} else if (state === 'edit' && !!id) {
-			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={mostrarModal} />;
+			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={modalView} />;
 		} else if (state === 'create') {
-			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={mostrarModal} />;
+			return <TaskDetailContainer {...props} screenState={state} id={id} isModalView={modalView} />;
 		}
 	} else {
 		return <TaskListContainer {...props} />;

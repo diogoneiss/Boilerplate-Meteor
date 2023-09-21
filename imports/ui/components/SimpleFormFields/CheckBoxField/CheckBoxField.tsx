@@ -48,7 +48,6 @@ export default ({
 		const newValue = valueTransformer(event?.target?.checked);
 		onChange({ name, target: { name, value: newValue } }, { name, value: newValue });
 	};
-	console.log('label no checkbox: ', label);
 	const list =
 		otherProps.checksList && hasValue(otherProps.checksList)
 			? otherProps.checksList

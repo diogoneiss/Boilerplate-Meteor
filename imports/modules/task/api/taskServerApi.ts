@@ -29,7 +29,7 @@ class TaskServerApi extends ProductServerBase<ITask> {
 				};
 				//console.log('Novos filtros: ', newFilter);
 				return this.defaultListCollectionPublication(newFilter, {
-					projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1 }
+					projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1, createdat: 1 }
 				});
 			},
 			(doc: ITask & { nomeUsuario: string } & { editable: boolean }) => {

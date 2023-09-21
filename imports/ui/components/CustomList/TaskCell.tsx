@@ -45,8 +45,6 @@ function TaskCell(props: TaskCellProps) {
 
 		//showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${task._id}` });
 		//context?.showNotification('Notification message');
-		console.log('Closecomponent: ', closeComponent);
-		closeComponent && closeComponent();
 	};
 	//TODO terminar isso pra usar no checkbox
 	const onClickCheckbox = () => {
