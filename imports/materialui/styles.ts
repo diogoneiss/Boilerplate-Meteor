@@ -21,10 +21,10 @@ const primary = '#6f7c80';
 const onPrimary = '#FFFFFF';
 const primaryContainer = '#9DE4D6';
 const onPrimaryContainer = '#FFFFFF';
-const primaryOnHover = 'rgba(0, 126, 122, 0.1)';
+const primaryOnHover = 'rgba(126, 126, 126, 0.1)';
 
-const secondary = '#2182C0';
-const onSecondary = '#034944';
+const secondary = '#9eb0b5';
+const onSecondary = '#FFFFFF';
 const secondaryContainer = '#FFDD99';
 const onSecondaryContainer = '#034944';
 const secondaryOnHover = 'rgba(236, 177, 31, 0.2)';

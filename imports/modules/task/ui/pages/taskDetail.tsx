@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode, ReactElement, FC } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { taskApi } from '../../api/taskApi';
 import SimpleForm from '../../../../ui/components/SimpleForm/SimpleForm';
@@ -17,7 +17,6 @@ import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/Tog
 import ImageCompactField from '/imports/ui/components/SimpleFormFields/ImageCompactField/ImageCompactField';
 import { PageLayout } from '/imports/ui/layouts/PageLayout';
 
-import Print from '@mui/icons-material/Print';
 import Close from '@mui/icons-material/Close';
 
 import { ITask } from '../../api/taskSch';
@@ -25,12 +24,24 @@ import { IDefaultContainerProps, IDefaultDetailProps, IMeteorError } from '/impo
 import { useTheme } from '@mui/material/styles';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { getUser } from '/imports/libs/getUser';
+import { Box, IconButton } from '@mui/material';
 
 interface ITaskDetail extends IDefaultDetailProps {
 	taskDoc: ITask;
 	save: (doc: ITask, _callback?: any) => void;
 	isModalView: boolean;
 }
+
+type ConditionalWrapperProps = {
+	condition: boolean;
+	trueWrapper: (children: ReactNode) => ReactElement;
+	falseWrapper: (children: ReactNode) => ReactElement;
+	children: ReactNode;
+};
+
+const ConditionalWrapper: FC<ConditionalWrapperProps> = ({ condition, trueWrapper, falseWrapper, children }) =>
+	condition ? trueWrapper(children) : falseWrapper(children);
+
 
 const TaskDetail = (props: ITaskDetail) => {
 	const { isPrintView, screenState, loading, taskDoc, save, navigate, closeComponent, isModalView } = props;
@@ -60,20 +71,51 @@ const TaskDetail = (props: ITaskDetail) => {
 	const handleSubmit = (doc: ITask) => {
 		save(doc, redirectAfterSubmit);
 	};
+	type MenuBarProps = {
+		children: ReactNode;
+	};
+	const MenuBar: React.FC<MenuBarProps> = ({ children}) => {
+		return (
+			<Box display="flex" flexDirection="column" height="100%">
+				<Box display="flex" justifyContent="flex-end" p={1}>
+					<IconButton onClick={redirectAfterSubmit}>
+						<Close />
+					</IconButton>
+				</Box>
+				<Box flexGrow={1}>{children}</Box>
+			</Box>
+		);
+	};
+
+	type ConditionalWrapperProps = {
+		condition: boolean;
+		children: ReactNode;
+	};
+
+	const ConditionalWrapper: FC<ConditionalWrapperProps> = ({ condition, children }) => {
+		//poderia usar o atributo de esconder a barra, porém quero mostrar o X
+		const trueWrapper = (children: ReactNode) => <MenuBar >{children}</MenuBar>;
+		const falseWrapper = (children: ReactNode) => (
+			<PageLayout
+				key={'ExemplePageLayoutDetailKEY'}
+				title={screenState === 'view' ? 'Visualizar tarefa' : screenState === 'edit' ? 'Editar tarefa' : 'Criar tarefa'}
+				onBack={() => navigate('/task')}>
+				{children}
+			</PageLayout>
+		);
+		return condition ? trueWrapper(children) : falseWrapper(children);
+	};
 
 	return (
-		<PageLayout
-			key={'ExemplePageLayoutDetailKEY'}
-			title={screenState === 'view' ? 'Visualizar tarefa' : screenState === 'edit' ? 'Editar tarefa' : 'Criar tarefa'}
-			onBack={() => navigate('/task')}>
-			<SimpleForm
+		<ConditionalWrapper condition={isModalView} >
+
+		<SimpleForm
 				key={'ExempleDetail-SimpleFormKEY'}
 				mode={screenState}
 				schema={taskApi.getSchema()}
 				doc={taskDoc}
 				onSubmit={handleSubmit}
 				loading={loading}>
-				{isModalView ? <h1>é modal....</h1> : null}
 				<FormGroup key={'fieldsOne'}>
 					<TextField key={'f1-tituloKEY'} placeholder="Titulo" name="title" />
 					<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
@@ -88,7 +130,7 @@ const TaskDetail = (props: ITaskDetail) => {
 					/>
 				) : null}
 
-				<ToggleField key={'isPrivate'} name="isPrivate" label="Tarefa privada?" />
+				<ToggleField readOnly={screenState !== 'edit'} key={'isPrivate'} name="isPrivate" label="Tarefa privada?" />
 
 				<div
 					key={'Buttons'}
@@ -115,7 +157,7 @@ const TaskDetail = (props: ITaskDetail) => {
 					) : null}
 				</div>
 			</SimpleForm>
-		</PageLayout>
+		</ConditionalWrapper>
 	);
 };
 
@@ -169,3 +211,4 @@ export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => 
 		}
 	};
 })(showLoading(TaskDetail));
+

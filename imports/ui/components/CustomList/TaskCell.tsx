@@ -51,6 +51,8 @@ function TaskCell(props: TaskCellProps) {
 		console.log('Clicou no checkbox');
 	};
 
+	//TODO colocar algo pra riscar o texto se ela ja tiver sido concluída
+
 	const onClickEdit = () => {
 		console.log('Indo para edição de tarefa ', task);
 		showModal && showModal({ title: 'Tarefa', url: `/task/edit/${task._id}/modalView`, modalOnClose: true });
@@ -71,7 +73,7 @@ function TaskCell(props: TaskCellProps) {
 						<ListItemText
 							primary={
 								<Box component="span" sx={{ color: 'grey' }}>
-									{`Criada por ${criador} em ${task.createdat?.toLocaleDateString()}`}
+									{`Criada por ${criador} em ${task.createdat}`}
 								</Box>
 							}
 							sx={{ marginTop: '0' }}

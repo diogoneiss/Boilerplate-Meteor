@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { taskApi } from '../../api/taskApi';
 import { userprofileApi } from '../../../../userprofile/api/UserProfileApi';
@@ -27,6 +27,7 @@ import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
 import CustomList from '/imports/ui/components/CustomList/CustomList';
+import {AppContext} from "/imports/ui/AppGeneralComponents";
 
 interface ITaskList extends IDefaultListProps {
 	remove: (doc: ITask) => void;
@@ -42,13 +43,9 @@ const TaskList = (props: ITaskList) => {
 		tasks,
 		navigate,
 		remove,
-		showDrawer,
-		showDeleteDialog,
 		onSearch,
 		total,
 		loading,
-		viewComplexTable,
-		setViewComplexTable,
 		setFilter,
 		clearFilter,
 		setPage,
@@ -63,10 +60,7 @@ const TaskList = (props: ITaskList) => {
 	const onClick = (_event: React.SyntheticEvent, id: string) => {
 		navigate('/task/view/' + id);
 	};
-	const viewTask = (_event: React.SyntheticEvent, id: string) => {
-		console.log('vendo tarefa com modal');
-		showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${id}` });
-	};
+
 	const onClickEdit = (doc: ITask) => {
 		console.log('Indo para edição de tarefa ', doc);
 		navigate('/task/edit/' + doc._id);
@@ -116,25 +110,7 @@ const TaskList = (props: ITaskList) => {
 	// @ts-ignore
 	return (
 		<PageLayout title={'Lista de tarefas'} actions={[]}>
-			{/*
-			<SearchDocField
-				api={taskApi}
-				subscribe={'taskList'}
-				getOptionLabel={(doc) => doc.title || 'error'}
-				sort={{ title: 1 }}
-				textToQueryFilter={(textoPesquisa) => {
-					textoPesquisa = textoPesquisa.replace(/[+[\\?()*]/g, '\\$&');
-					return { title: new RegExp(textoPesquisa, 'i') };
-				}}
-				autocompleteOptions={{ noOptionsText: 'Não encontrado' }}
-				name={'title'}
-				label={'Pesquisar com SearchDocField'}
-				onChange={handleSearchDocChange}
-				placeholder={'Todos'}
-				showAll={true}
-				key={'SearchDocKey'}
-			/>
-			*/}
+
 
 			<TextField
 				name={'pesquisar'}
@@ -173,7 +149,7 @@ const TaskList = (props: ITaskList) => {
 				}}>
 				<TablePagination
 					style={{ width: 'fit-content', overflow: 'unset' }}
-					rowsPerPageOptions={[10, 25, 50, 100]}
+					rowsPerPageOptions={[]}
 					labelRowsPerPage={''}
 					component="div"
 					count={total || 0}
@@ -216,15 +192,14 @@ const TaskList = (props: ITaskList) => {
 	);
 };
 
-export const subscribeConfig = new ReactiveVar<IConfigList & { viewComplexTable: boolean }>({
+export const subscribeConfig = new ReactiveVar<IConfigList>({
 	pageProperties: {
 		currentPage: 1,
-		pageSize: 25
+		pageSize: 4
 	},
 	sortProperties: { field: 'createdat', sortAscending: true },
 	filter: {},
 	searchBy: null,
-	viewComplexTable: false
 });
 
 const taskSearch = initSearch(
@@ -235,10 +210,12 @@ const taskSearch = initSearch(
 
 let onSearchTaskTyping: NodeJS.Timeout;
 
-const viewComplexTable = new ReactiveVar(false);
+
 
 export const TaskListContainer = withTracker((props: IDefaultContainerProps) => {
-	const { showNotification, showModal, showDrawer } = props;
+	//Como a home nao recebe props estou pegando do context
+
+	const { showNotification } = props;
 	//Reactive Search/Filter
 	const config = subscribeConfig.get();
 	const sort = {
@@ -284,8 +261,6 @@ export const TaskListContainer = withTracker((props: IDefaultContainerProps) => 
 				}
 			});
 		},
-		viewComplexTable: viewComplexTable.get(),
-		setViewComplexTable: (enableComplexTable: boolean) => viewComplexTable.set(enableComplexTable),
 		searchBy: config.searchBy,
 		onSearch: (...params: any) => {
 			onSearchTaskTyping && clearTimeout(onSearchTaskTyping);
@@ -320,7 +295,7 @@ export const TaskListContainer = withTracker((props: IDefaultContainerProps) => 
 			config.sortProperties = sort;
 			subscribeConfig.set(config);
 		},
-		setPageSize: (size = 25) => {
+		setPageSize: (size = 4) => {
 			config.pageProperties.pageSize = size;
 			subscribeConfig.set(config);
 		}

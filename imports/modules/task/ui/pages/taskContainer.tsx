@@ -3,7 +3,6 @@ import { TaskListContainer } from './taskList';
 import { TaskDetailContainer } from './taskDetail';
 import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
 import { useLocation, useParams } from 'react-router-dom';
-import { hasValue } from '/imports/libs/hasValue';
 
 export default (props: IDefaultContainerProps) => {
 	const validState = ['view', 'edit', 'create'];

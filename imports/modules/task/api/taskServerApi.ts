@@ -17,20 +17,22 @@ class TaskServerApi extends ProductServerBase<ITask> {
 
 		const self = this;
 		this.beforeUpdate = this.beforeUpdate.bind(this);
+		this.beforeRemove = this.beforeRemove.bind(this);
+
+		this.defaultListCollectionPublication = this.defaultListCollectionPublication.bind(this)
+
 
 		this.addTransformedPublication(
 			'taskList',
-			(filter = {}) => {
+			(filter = {}, optionsPub = {}) => {
 				const currentUser = getUser();
 				//Recuperar apenas tarefas públicas ou do usuario atual
 				const newFilter = {
 					...filter,
 					$or: [{ createdby: currentUser._id }, { isPrivate: false }]
 				};
-				//console.log('Novos filtros: ', newFilter);
-				return this.defaultListCollectionPublication(newFilter, {
-					projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1, createdat: 1 }
-				});
+
+				return this.defaultListCollectionPublication(newFilter, optionsPub);
 			},
 			(doc: ITask & { nomeUsuario: string } & { editable: boolean }) => {
 				const currentUser = getUser();
@@ -40,33 +42,7 @@ class TaskServerApi extends ProductServerBase<ITask> {
 			}
 		);
 
-		this.addTransformedPublication(
-			'taskRecent',
-			(filter = {}) => {
-				const currentUser = getUser();
-				//Recuperar apenas tarefas públicas ou do usuario atual
-				const newFilter = {
-					...filter,
-					$or: [{ createdby: currentUser._id }, { isPrivate: false }]
-				};
-				//console.log('Novos filtros: ', newFilter);
-				return this.defaultListCollectionPublication(newFilter, {
-					projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1 },
-					sort: { createdAt: -1 },
-					limit: 4
-				});
-			},
-			(
-				doc: ITask & {
-					nomeUsuario: string;
-				} & {
-					editable: boolean;
-				}
-			) => {
-				const userProfileDoc = userprofileServerApi.getCollectionInstance().findOne({ _id: doc.createdby });
-				return { ...doc, nomeUsuario: userProfileDoc?.username };
-			}
-		);
+
 
 		this.addPublication('taskDetail', (filter = {}) => {
 			const currentUser = getUser();
@@ -75,7 +51,15 @@ class TaskServerApi extends ProductServerBase<ITask> {
 				...filter,
 				$or: [{ createdby: currentUser._id }, { isPrivate: false }]
 			};
-			return this.defaultDetailCollectionPublication(newFilter, {});
+			return this.defaultDetailCollectionPublication(newFilter, {
+				projection: {
+					check: 1,
+					title: 1,
+					description: 1,
+					isPrivate: 1,
+					createdby: 1,
+					createdat: 1
+				}});
 		});
 
 		this.addRestEndpoint(
@@ -133,6 +117,52 @@ class TaskServerApi extends ProductServerBase<ITask> {
 		}
 
 		return super.beforeUpdate(docObj, context);
+	}
+
+	beforeRemove(docObj: ITask, context: IContext) {
+		const user = getUser();
+
+		const tarefaInteira = this.getCollectionInstance().findOne({ _id: docObj._id });
+		if (!tarefaInteira) {
+			console.log(`Tentando deletar uma tarefa que nao existe!`);
+			throw new Meteor.Error('Acesso negado', `Tarefa com o id fornecido nao existe`);
+		}
+
+		if (!user) {
+			console.log(`Tentando deletar uma tarefa sem login!`);
+
+			throw new Meteor.Error('Acesso negado', `Você não tem permissão para deletar dados sem login`);
+		}
+		if (user._id !== tarefaInteira.createdby) {
+			console.log(
+				`Tentando atualizar uma tarefa com o usuário ${context.user._id} mas o usuário ${tarefaInteira.createdby} não é o mesmo!`
+			);
+
+			throw new Meteor.Error('Acesso negado', `Você não tem permissão para deletar esses dados, apenas o criador pode`);
+		}
+
+		return super.beforeRemove(docObj, context);
+	}
+
+	// @ts-ignore
+	defaultListCollectionPublication(filter = {}, options = {}  ) {
+		const currentUser = getUser();
+
+		const newFilter = {
+			...filter,
+			$or: [{ createdby: currentUser._id }, { isPrivate: false }]
+		};
+
+		const newOptions = {
+			projection: { check: 1, title: 1, isPrivate: 1, createdby: 1, createdat: 1 },
+			sort: {title: 1},
+			...options
+		}
+
+		console.log(`Overridden method with new filters ${JSON.stringify(newFilter)} and options ${JSON.stringify(newOptions)}`);
+
+
+		return super.defaultListCollectionPublication(newFilter, newOptions);
 	}
 }
 
