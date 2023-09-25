@@ -50,7 +50,7 @@ export const SignUp = (props: ISignUp) => {
 	return (
 		<Container style={signUpStyle.containerSignUp}>
 			<h2 style={signUpStyle.labelRegisterSystem}>
-				<img src="/images/wireframe/logo.png" style={signUpStyle.imageLogo} />
+				<img src="/images/wireframe/to-do-list.png" style={signUpStyle.imageLogo} />
 				{'Cadastrar no sistema'}
 			</h2>
 			<SimpleForm

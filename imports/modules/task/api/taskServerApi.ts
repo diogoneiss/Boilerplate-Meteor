@@ -19,8 +19,7 @@ class TaskServerApi extends ProductServerBase<ITask> {
 		this.beforeUpdate = this.beforeUpdate.bind(this);
 		this.beforeRemove = this.beforeRemove.bind(this);
 
-		this.defaultListCollectionPublication = this.defaultListCollectionPublication.bind(this)
-
+		this.defaultListCollectionPublication = this.defaultListCollectionPublication.bind(this);
 
 		this.addTransformedPublication(
 			'taskList',
@@ -31,7 +30,7 @@ class TaskServerApi extends ProductServerBase<ITask> {
 					...filter,
 					$or: [{ createdby: currentUser._id }, { isPrivate: false }]
 				};
-
+				console.log('Publication called with options ' + JSON.stringify(optionsPub));
 				return this.defaultListCollectionPublication(newFilter, optionsPub);
 			},
 			(doc: ITask & { nomeUsuario: string } & { editable: boolean }) => {
@@ -41,8 +40,6 @@ class TaskServerApi extends ProductServerBase<ITask> {
 				return { ...doc, nomeUsuario: userProfileDoc?.username, editable: currentUser?._id === doc.createdby };
 			}
 		);
-
-
 
 		this.addPublication('taskDetail', (filter = {}) => {
 			const currentUser = getUser();
@@ -59,7 +56,8 @@ class TaskServerApi extends ProductServerBase<ITask> {
 					isPrivate: 1,
 					createdby: 1,
 					createdat: 1
-				}});
+				}
+			});
 		});
 
 		this.addRestEndpoint(
@@ -145,22 +143,24 @@ class TaskServerApi extends ProductServerBase<ITask> {
 	}
 
 	// @ts-ignore
-	defaultListCollectionPublication(filter = {}, options = {}  ) {
+	defaultListCollectionPublication(filter = {}, options = {}) {
 		const currentUser = getUser();
 
 		const newFilter = {
 			...filter,
 			$or: [{ createdby: currentUser._id }, { isPrivate: false }]
 		};
-
+		console.log('Desired options from the caller: ', JSON.stringify(options));
+		//Colocando o description aqui pra conseguir fazer busca
 		const newOptions = {
-			projection: { check: 1, title: 1, isPrivate: 1, createdby: 1, createdat: 1 },
-			sort: {title: 1},
+			projection: { check: 1, title: 1, description: 1, isPrivate: 1, createdby: 1, createdat: 1 },
+			sort: { title: 1 },
 			...options
-		}
+		};
 
-		console.log(`Overridden method with new filters ${JSON.stringify(newFilter)} and options ${JSON.stringify(newOptions)}`);
-
+		console.log(
+			`Overridden method with new filters ${JSON.stringify(newFilter)} and options ${JSON.stringify(newOptions)}`
+		);
 
 		return super.defaultListCollectionPublication(newFilter, newOptions);
 	}

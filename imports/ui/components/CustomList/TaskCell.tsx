@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -9,10 +9,11 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import Box from '@mui/material/Box';
 import { ITask, TaskData } from '/imports/modules/task/api/taskSch';
-import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
+import { IDefaultContainerProps, IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
 import Divider from './Divider';
 
 import { AppContext } from '/imports/ui/AppGeneralComponents';
+import { taskApi } from '/imports/modules/task/api/taskApi';
 
 interface TaskCellProps extends IDefaultContainerProps {
 	task: TaskData;
@@ -20,10 +21,12 @@ interface TaskCellProps extends IDefaultContainerProps {
 }
 
 function TaskCell(props: TaskCellProps) {
-	const { task, remove, showDeleteDialog, showDrawer, navigate, closeComponent } = props;
+	const { task, remove, showDrawer, navigate, closeComponent } = props;
+	const [completed, setCompleted] = useState(task.check);
+
 	const context = useContext(AppContext);
 	// @ts-ignore
-	let { showModal } = context;
+	let { showModal, showNotification, showDeleteDialog } = context;
 
 	//console.log('Context: ', context);
 	const editable = task.editable;
@@ -46,12 +49,31 @@ function TaskCell(props: TaskCellProps) {
 		//showDrawer && showDrawer({ title: 'Tarefa', url: `/task/view/${task._id}` });
 		//context?.showNotification('Notification message');
 	};
-	//TODO terminar isso pra usar no checkbox
 	const onClickCheckbox = () => {
-		console.log('Clicou no checkbox');
-	};
+		if (!editable) {
+			return;
+		}
 
-	//TODO colocar algo pra riscar o texto se ela ja tiver sido concluída
+		task.check = !task.check;
+
+		taskApi.update(task, (e: IMeteorError) => {
+			if (e) {
+				console.log('Error: ', e);
+				showNotification({
+					type: 'warning',
+					title: 'Operação não realizada!',
+					description: `Erro ao realizar a operação: ${e.reason}`
+				});
+			} else {
+				setCompleted(!completed);
+				showNotification({
+					type: 'success',
+					title: 'Operação realizada!',
+					description: `Estado da tarefa alterado com sucesso!`
+				});
+			}
+		});
+	};
 
 	const onClickEdit = () => {
 		console.log('Indo para edição de tarefa ', task);
@@ -65,15 +87,30 @@ function TaskCell(props: TaskCellProps) {
 					<Checkbox
 						checkedIcon={<CheckCircleRoundedIcon />}
 						icon={<CircleOutlinedIcon />}
-						readOnly={true}
-						checked={task.check}
+						readOnly={!editable}
+						checked={completed}
+						disableRipple={!editable}
+						onClick={(e) => {
+							e.stopPropagation();
+							onClickCheckbox();
+						}}
+						sx={{
+							pointerEvents: editable ? 'all' : 'none',
+							'&:hover': editable ? {} : { backgroundColor: 'transparent' }
+						}}
 					/>
 					<Box>
-						<ListItemText primary={<Box component="span">{task.title}</Box>} />
+						<ListItemText
+							primary={
+								<Box component="span" sx={{ textDecoration: task.check ? 'line-through' : 'none' }}>
+									{task.title}
+								</Box>
+							}
+						/>
 						<ListItemText
 							primary={
 								<Box component="span" sx={{ color: 'grey' }}>
-									{`Criada por ${criador} em ${task.createdat}`}
+									{`Criada por ${criador}`}
 								</Box>
 							}
 							sx={{ marginTop: '0' }}

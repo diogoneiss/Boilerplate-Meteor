@@ -57,7 +57,7 @@ export const PasswordRecovery = (props: IDefaultContainerProps) => {
 	return (
 		<Container style={passwordRecoveryStyle.containerRecoveryPassword}>
 			<h2 style={passwordRecoveryStyle.labelAccessSystem}>
-				<img src="/images/wireframe/logo.png" style={passwordRecoveryStyle.imageLogo} />
+				<img src="/images/wireframe/to-do-list.png" style={passwordRecoveryStyle.imageLogo} />
 				{'Acessar o sistema'}
 			</h2>
 			<SimpleForm

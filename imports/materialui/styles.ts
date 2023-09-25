@@ -36,7 +36,7 @@ const onErrorContainer = '#B30501';
 
 const background = '#F0F2FB';
 const onBackground = '#404040';
-const buttonOnHover = '#006B68';
+const buttonOnHover = '#50595c';
 
 const primaryGradient = 'linear-gradient(180deg, #0ABB98 0%, #08AE92 45.83%, #06A28B 69.27%, #007E7A 100%)';
 const secondaryGradient = 'linear-gradient(180deg, #034944 0%, #007E7A 100%)';

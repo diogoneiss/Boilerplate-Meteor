@@ -25,6 +25,8 @@ import { useTheme } from '@mui/material/styles';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { getUser } from '/imports/libs/getUser';
 import { Box, IconButton } from '@mui/material';
+import { useUserAccount } from '/imports/hooks/useUserAccount';
+import { useLocation } from 'react-router-dom';
 
 interface ITaskDetail extends IDefaultDetailProps {
 	taskDoc: ITask;
@@ -42,19 +44,29 @@ type ConditionalWrapperProps = {
 const ConditionalWrapper: FC<ConditionalWrapperProps> = ({ condition, trueWrapper, falseWrapper, children }) =>
 	condition ? trueWrapper(children) : falseWrapper(children);
 
-
 const TaskDetail = (props: ITaskDetail) => {
 	const { isPrintView, screenState, loading, taskDoc, save, navigate, closeComponent, isModalView } = props;
 
-	const user = getUser();
-	const isCreator = taskDoc?.createdby === user._id;
+	const { user, userId } = useUserAccount();
+	// coloque um || true abaixo para testar a edição limitada
+	const isCreator = taskDoc?.createdby === userId;
 	//console.log(`Task ${taskDoc?.createdby} and user creator ${user._id}. Created by: ${isCreator}`);
 
-	if (screenState == 'edit' && !isCreator && taskDoc?._id) {
-		console.log('Usuario nao tem permissao de editar, modificando a pagina para view');
+	const location = useLocation();
 
-		const newPathname = window.location.pathname.replace('edit', 'view');
+	const redirectToAnotherState = () => {
+		let fromTo = ['view', 'edit'];
+		if (screenState == 'edit') {
+			fromTo = fromTo.reverse();
+		}
+		const newPathname = location.pathname.replace(fromTo[0], fromTo[1]);
+		console.log(`Estava em ${location.pathname} e estou redirecionando para ${newPathname}`);
+
 		navigate(newPathname, { replace: true });
+	};
+
+	if (screenState == 'edit' && !isCreator && taskDoc?._id) {
+		redirectToAnotherState();
 	}
 
 	const theme = useTheme();
@@ -74,7 +86,7 @@ const TaskDetail = (props: ITaskDetail) => {
 	type MenuBarProps = {
 		children: ReactNode;
 	};
-	const MenuBar: React.FC<MenuBarProps> = ({ children}) => {
+	const MenuBar: React.FC<MenuBarProps> = ({ children }) => {
 		return (
 			<Box display="flex" flexDirection="column" height="100%">
 				<Box display="flex" justifyContent="flex-end" p={1}>
@@ -94,7 +106,7 @@ const TaskDetail = (props: ITaskDetail) => {
 
 	const ConditionalWrapper: FC<ConditionalWrapperProps> = ({ condition, children }) => {
 		//poderia usar o atributo de esconder a barra, porém quero mostrar o X
-		const trueWrapper = (children: ReactNode) => <MenuBar >{children}</MenuBar>;
+		const trueWrapper = (children: ReactNode) => <MenuBar>{children}</MenuBar>;
 		const falseWrapper = (children: ReactNode) => (
 			<PageLayout
 				key={'ExemplePageLayoutDetailKEY'}
@@ -107,9 +119,8 @@ const TaskDetail = (props: ITaskDetail) => {
 	};
 
 	return (
-		<ConditionalWrapper condition={isModalView} >
-
-		<SimpleForm
+		<ConditionalWrapper condition={isModalView}>
+			<SimpleForm
 				key={'ExempleDetail-SimpleFormKEY'}
 				mode={screenState}
 				schema={taskApi.getSchema()}
@@ -118,7 +129,9 @@ const TaskDetail = (props: ITaskDetail) => {
 				loading={loading}>
 				<FormGroup key={'fieldsOne'}>
 					<TextField key={'f1-tituloKEY'} placeholder="Titulo" name="title" />
-					<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
+					<Box sx={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+						<TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
+					</Box>
 				</FormGroup>
 
 				{screenState !== 'create' ? (
@@ -130,7 +143,7 @@ const TaskDetail = (props: ITaskDetail) => {
 					/>
 				) : null}
 
-				<ToggleField readOnly={screenState !== 'edit'} key={'isPrivate'} name="isPrivate" label="Tarefa privada?" />
+				<ToggleField readOnly={screenState === 'view'} key={'isPrivate'} name="isPrivate" label="Tarefa privada?" />
 
 				<div
 					key={'Buttons'}
@@ -149,6 +162,11 @@ const TaskDetail = (props: ITaskDetail) => {
 						variant="contained">
 						{screenState === 'view' ? 'Voltar' : 'Cancelar'}
 					</Button>
+					{screenState === 'view' && isCreator ? (
+						<Button size="medium" key={'b2'} onClick={redirectToAnotherState} color={'primary'} variant="contained">
+							{'Editar'}
+						</Button>
+					) : null}
 
 					{screenState !== 'view' ? (
 						<Button key={'b3'} color={'primary'} variant="contained" id="submit">
@@ -211,4 +229,3 @@ export const TaskDetailContainer = withTracker((props: ITaskDetailContainer) => 
 		}
 	};
 })(showLoading(TaskDetail));
-

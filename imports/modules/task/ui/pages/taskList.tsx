@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { taskApi } from '../../api/taskApi';
 import { userprofileApi } from '../../../../userprofile/api/UserProfileApi';
@@ -27,7 +27,7 @@ import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
 import CustomList from '/imports/ui/components/CustomList/CustomList';
-import {AppContext} from "/imports/ui/AppGeneralComponents";
+import { AppContext } from '/imports/ui/AppGeneralComponents';
 
 interface ITaskList extends IDefaultListProps {
 	remove: (doc: ITask) => void;
@@ -109,9 +109,7 @@ const TaskList = (props: ITaskList) => {
 	// @ts-ignore
 	// @ts-ignore
 	return (
-		<PageLayout title={'Lista de tarefas'} actions={[]}>
-
-
+		<PageLayout title={'Lista de tarefas'} onBack={() => navigate('/')}>
 			<TextField
 				name={'pesquisar'}
 				label={'Pesquisar'}
@@ -197,9 +195,9 @@ export const subscribeConfig = new ReactiveVar<IConfigList>({
 		currentPage: 1,
 		pageSize: 4
 	},
-	sortProperties: { field: 'createdat', sortAscending: true },
+	sortProperties: { field: 'createdat', sortAscending: false },
 	filter: {},
-	searchBy: null,
+	searchBy: null
 });
 
 const taskSearch = initSearch(
@@ -209,8 +207,6 @@ const taskSearch = initSearch(
 );
 
 let onSearchTaskTyping: NodeJS.Timeout;
-
-
 
 export const TaskListContainer = withTracker((props: IDefaultContainerProps) => {
 	//Como a home nao recebe props estou pegando do context

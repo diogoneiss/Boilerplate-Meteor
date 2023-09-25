@@ -112,9 +112,15 @@ export const SignIn = (props: ISignIn) => {
 					}}>
 					<Box>
 						<h2 style={signinStyle.labelAccessSystem}>
-							<img src="/images/wireframe/logo.png" style={signinStyle.imageLogo} />
-							<span>Acessar o sistema</span>
+							<img src="/images/wireframe/to-do-list.png" style={signinStyle.imageLogo} />
+							<span>toDo List</span>
 						</h2>
+						<Typography variant="body1" align="center" sx={{ lineHeight: 1, marginBottom: '1rem' }}>
+							Boas vindas a sua lista de tarefas.
+							<br />
+							Insira seu email e senha para efetuar o login
+						</Typography>
+
 						<SimpleForm
 							schema={{
 								email: { type: 'String', label: 'Email', optional: false },
@@ -137,25 +143,25 @@ export const SignIn = (props: ISignIn) => {
 								</Box>
 							</Box>
 						</SimpleForm>
-
-						<Typography variant="body1">
+						<Typography variant="body1" align="center" color="textPrimary">
 							Esqueceu sua senha?{' '}
 							<MaterialLink
 								component="button"
 								variant="body1"
 								underline="always"
-								color="secondary"
+								color="textPrimary"
 								onClick={() => navigate('/password-recovery')}>
 								Clique aqui
 							</MaterialLink>
 						</Typography>
-						<Typography variant="body1">
+
+						<Typography variant="body1" align="center" color="textPrimary">
 							É novo por aqui?{' '}
 							<MaterialLink
 								component="button"
 								variant="body1"
 								underline="always"
-								color="secondary"
+								color="textPrimary"
 								onClick={() => navigate('/signup')}>
 								Cadastre-se!
 							</MaterialLink>

@@ -20,7 +20,7 @@ import Box from '@mui/material/Box';
 const HomeIconButton = ({ navigate }: any) => {
 	return (
 		<Box onClick={() => navigate('/')} sx={fixedMenuLayoutStyle.containerHomeIconButton}>
-			<img style={fixedMenuLayoutStyle.homeIconButton} src="/images/wireframe/logo.png" />
+			<img style={fixedMenuLayoutStyle.homeIconButton} src="/images/wireframe/to-do-list.png" />
 		</Box>
 	);
 };

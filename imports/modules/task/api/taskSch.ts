@@ -11,7 +11,7 @@ export const taskSch = {
 		type: String,
 		label: 'Descrição',
 		defaultValue: '',
-		optional: true
+		optional: false
 	},
 
 	isPrivate: {

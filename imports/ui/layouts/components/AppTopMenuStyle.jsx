@@ -20,6 +20,6 @@ export const appTopMenuStyle = {
 		flexDirection: 'row'
 	},
 	accountCircle: {
-		color: '#3e6b01'
+		color: '#fff'
 	}
 };

@@ -1,5 +1,5 @@
 import { AccountCircle } from '@mui/icons-material';
-import { Box, Button, Container, Menu } from '@mui/material';
+import { Box, Button, Container, Menu, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DayNightToggle } from './DayNightToggle';

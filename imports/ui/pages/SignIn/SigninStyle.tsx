@@ -33,9 +33,9 @@ const signinStyle = {
 		alignItems: 'center'
 	},
 	imageLogo: {
-		backgroundColor: '#ff9937',
+		backgroundColor: '#fff',
 		maxWidth: 100,
-		borderRadius: 30,
+		borderRadius: 10,
 		padding: 5
 	},
 	containerButtonOptions: {

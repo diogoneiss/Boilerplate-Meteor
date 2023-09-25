@@ -1,10 +1,2 @@
-## Detail
-1. Como ter um campo obrigatorio com valor padrão, isto é, que o schema sempre deve conter mas que se não for informado, o valor padrão é usado?
-   Coloquei na hora de fazer o save
-2. Como lidar com a restrição de edição? Fiz apenas um navigate, que não funciona direito no histórico
-   Posso fazer tanto retornando um booleano de editavel do back ou verificando no componente. Preferi fazer no proprio
-   back, de forma que seja mais fácil usar o TaskCell na home, em que elas não são editáveis
-
-## Meteor
-
-como acelerar hot reload
+1. Pq ta vindo um limit de 99999 na publicacao depois que eu faço o override?
+2. Como lidar com valores padrão para dados opcionais? Pensei em criar o campo no doc diretamente

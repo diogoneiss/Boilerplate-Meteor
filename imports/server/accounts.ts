@@ -269,9 +269,10 @@ Meteor.startup(() => {
 			};
 			return validateLoginGoogle(user);
 		}
+		/* desabilitada verificacao de emails
 		if (!user || !user.emails || !user.emails[0].verified) {
 			throw new Meteor.Error('Email ñao verificado', `Este email ainda não foi verificado!`);
-		}
+		}*/
 		console.log('Acesso autorizado');
 		return true;
 	});
